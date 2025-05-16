@@ -1,0 +1,282 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>欢迎来到演唱会管理系统</title>
+    <!-- 内嵌 CSS 样式 -->
+    <style>
+        /* 全局样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 标题样式 */
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+            letter-spacing: 1px;
+        }
+
+        /* 欢迎信息 */
+        .welcome-info {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .welcome-info a {
+            text-decoration: none;
+            color: #42a5f5;
+            font-weight: bold;
+        }
+
+        /* 消息样式 */
+        .success-message {
+            color: #43a047;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .error-message {
+            color: #e53935;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* 演唱会表格 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #42a5f5;
+            color: white;
+        }
+
+        /* 表单容器 */
+        .form-container {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #42a5f5;
+            background-color: #e3f2fd;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #42a5f5;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #1e88e5;
+        }
+
+        /* 操作按钮 */
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            color: #fff;
+            cursor: pointer;
+            margin: 0 2px;
+            font-size: 14px;
+        }
+
+        .edit-btn {
+            background-color: #ff9800;
+        }
+
+        .edit-btn:hover {
+            background-color: #fb8c00;
+        }
+
+        .delete-btn {
+            background-color: #f44336;
+        }
+
+        .delete-btn:hover {
+            background-color: #e53935;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>欢迎来到演唱会管理系统</h2>
+
+        <!-- 欢迎信息 -->
+        <div class="welcome-info">
+            <c:if test="${not empty currentUser}">
+                欢迎，${currentUser.username}！ <a href="${pageContext.request.contextPath}/logout">登出</a>
+            </c:if>
+        </div>
+
+        <!-- 成功消息 -->
+        <c:if test="${not empty successMessage}">
+            <div class="success-message">${successMessage}</div>
+        </c:if>
+
+        <!-- 错误消息 -->
+        <c:if test="${not empty errorMessage}">
+            <div class="error-message">${errorMessage}</div>
+        </c:if>
+
+        <!-- 添加演唱会表单 -->
+        <div class="form-container">
+            <h3>添加新的演唱会</h3>
+            <form action="${pageContext.request.contextPath}/addConcert" method="post">
+                <div class="form-group">
+                    <label for="add-name">名称:</label>
+                    <input type="text" name="name" id="add-name" required maxlength="512"/>
+                </div>
+                <div class="form-group">
+                    <label for="add-date">日期:</label>
+                    <input type="date" name="date" id="add-date" required />
+                </div>
+                <div class="form-group">
+                    <label for="add-location">地点:</label>
+                    <input type="text" name="location" id="add-location" required />
+                </div>
+                <div class="form-group">
+                    <label for="add-ticketPrice">票价:</label>
+                    <input type="number" name="ticketPrice" id="add-ticketPrice" step="0.01" required />
+                </div>
+                <button type="submit" class="btn">添加演唱会</button>
+            </form>
+        </div>
+
+        <!-- 演唱会列表 -->
+        <h3>演唱会列表</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>日期</th>
+                    <th>地点</th>
+                    <th>票价</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach var="concert" items="${concerts}">
+                    <tr>
+                        <td>${concert.name}</td>
+                        <td>${concert.date}</td>
+                        <td>${concert.location}</td>
+                        <td>${concert.ticketPrice}</td>
+                        <td>
+                            <!-- 编辑按钮 -->
+                            <button class="action-btn edit-btn" onclick="populateEditForm(${concert.id}, '${concert.name}', '${concert.date}', '${concert.location}', ${concert.ticketPrice})">编辑</button>
+                            <!-- 删除按钮 -->
+                            <form action="${pageContext.request.contextPath}/deleteConcert" method="post" style="display:inline;">
+                                <input type="hidden" name="id" value="${concert.id}" />
+                                <button type="submit" class="action-btn delete-btn" onclick="return confirm('确定要删除此演唱会吗？');">删除</button>
+                            </form>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+
+        <!-- 编辑演唱会表单（隐藏，显示时填充数据） -->
+        <div class="form-container" id="editFormContainer" style="display:none;">
+            <h3>编辑演唱会</h3>
+            <form action="${pageContext.request.contextPath}/updateConcert" method="post">
+                <input type="hidden" name="id" id="edit-id" />
+                <div class="form-group">
+                    <label for="edit-name">名称:</label>
+                    <input type="text" name="name" id="edit-name" required maxlength="512"/>
+                </div>
+                <div class="form-group">
+                    <label for="edit-date">日期:</label>
+                    <input type="date" name="date" id="edit-date" required />
+                </div>
+                <div class="form-group">
+                    <label for="edit-location">地点:</label>
+                    <input type="text" name="location" id="edit-location" required />
+                </div>
+                <div class="form-group">
+                    <label for="edit-ticketPrice">票价:</label>
+                    <input type="number" name="ticketPrice" id="edit-ticketPrice" step="0.01" required />
+                </div>
+                <button type="submit" class="btn">更新演唱会</button>
+                <button type="button" class="btn" onclick="hideEditForm()">取消</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script type="text/javascript">
+        function populateEditForm(id, name, date, location, ticketPrice) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-name').value = name;
+            document.getElementById('edit-date').value = date;
+            document.getElementById('edit-location').value = location;
+            document.getElementById('edit-ticketPrice').value = ticketPrice;
+            document.getElementById('editFormContainer').style.display = 'block';
+        }
+
+        function hideEditForm() {
+            document.getElementById('editFormContainer').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
