@@ -76,7 +76,7 @@
 ---
 
 ## 技术架构
-- **前端**：HTML、css、JavaScript  
+- **前端**：HTML、css、jQuery、JavaScript  
 - **后端**：MySQL数据库、filter、servlet、MVC框架  
 ---
 
